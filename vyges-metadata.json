@@ -1,0 +1,106 @@
+{
+  "$schema": "https://vyges.com/schema/v1/vyges-metadata.schema.json",
+  "x-version": "1.0.0",
+  "name": "caliptra-sha256",
+  "version": "0.1.0",
+  "description": "SHA-256/224 cryptographic hash engine with 512-bit block processing, 64-round computation, Winternitz post-quantum signature support (variable W parameter), and zeroize capability. AHB-Lite slave interface. Extracted from CHIPS Alliance Caliptra Root of Trust.",
+  "license": "Apache-2.0",
+  "maturity": "production",
+  "target": ["asic", "fpga"],
+  "design_type": ["digital"],
+  "created": "2026-03-27T20:52:56Z",
+  "updated": "2026-03-27T20:52:56Z",
+  "source": {
+    "type": "git",
+    "url": "https://github.com/chipsalliance/caliptra-rtl",
+    "commit": "a47402b3ac20c15c7d18f17456fb9cca56f25274",
+    "ip_path": "src/sha256",
+    "private": false,
+    "containsEncryptedPayload": false,
+    "indexing": true
+  },
+  "maintainers": [{"name": "Vyges", "email": "team@vyges.com", "url": "https://vyges.com", "github": "vyges"}],
+  "interfaces": [
+    {"type": "bus", "direction": "slave", "protocol": "AHB-Lite", "port": "ahb", "width": 32, "description": "AHB-Lite slave interface via sha256_ctrl wrapper. 32-bit address and data."},
+    {"type": "interrupt", "direction": "output", "port": "error_intr", "description": "Error interrupt output."},
+    {"type": "interrupt", "direction": "output", "port": "notif_intr", "description": "Completion notification interrupt."},
+    {"type": "clock", "direction": "input", "port": "clk", "description": "System clock."},
+    {"type": "reset", "direction": "input", "port": "reset_n", "polarity": "active_low", "description": "Asynchronous active-low reset."},
+    {"type": "control", "direction": "input", "port": "cptra_pwrgood", "description": "Caliptra power good signal."}
+  ],
+  "parameters": [
+    {"name": "ADDR_WIDTH", "type": "int", "default": 32, "description": "Address bus width."},
+    {"name": "DATA_WIDTH", "type": "int", "default": 32, "description": "Data bus width."}
+  ],
+  "performance": {
+    "block_size": 512,
+    "digest_size": 256,
+    "rounds": 64,
+    "data_width": 32,
+    "hash_modes": ["SHA-256", "SHA-224"]
+  },
+  "architecture": {
+    "type": "peripheral",
+    "features": [
+      "SHA-256 and SHA-224 hash computation (FIPS 180-4)",
+      "512-bit message block processing with 64 rounds",
+      "Sliding window W memory (16x32-bit)",
+      "Winternitz post-quantum signature support (W=1,2,4,8)",
+      "3-state Winternitz FSM (IDLE, 1ST, OTHERS)",
+      "Zeroize command for clearing sensitive state",
+      "PeakRDL-generated register file",
+      "AHB-Lite slave wrapper (sha256_ctrl)"
+    ]
+  },
+  "asic": {"flavor": "digital", "technology": ["sky130A", "GF22", "TSMC"]},
+  "fpga": {"toolchain": ["Vivado", "Quartus"], "devices": ["Artix-7", "Ultrascale+"]},
+  "dependencies": [
+    {"name": "caliptra-libs", "type": "library", "description": "AHB slave interface (ahb_slv_sif), clock gating, synchronizers"}
+  ],
+  "test": {
+    "testbenches": ["systemverilog", "formal"],
+    "status": "upstream_passing",
+    "simulators": ["vcs", "verilator"],
+    "coverage": "functional",
+    "formal_verification": "100% coverage (LUBIS EDA)",
+    "test_cases": [
+      {"name": "sha256_ctrl_tb", "description": "AHB-Lite interface testbench with register mapping", "status": "passing"},
+      {"name": "sha256_random_test", "description": "SystemVerilog randomized tests", "status": "passing"},
+      {"name": "sha256_formal", "description": "Formal verification: reset, state transitions, mode initialization. 100% coverage.", "status": "passing"}
+    ]
+  },
+  "documentation": {
+    "upstream": "https://github.com/chipsalliance/caliptra-rtl/tree/main/src/sha256",
+    "caliptra_spec": "https://chipsalliance.github.io/Caliptra/"
+  },
+  "artifacts": {
+    "rtl": [
+      "rtl/sha256_params_pkg.sv",
+      "rtl/sha256_reg_pkg.sv",
+      "rtl/sha256.sv",
+      "rtl/sha256_ctrl.sv",
+      "rtl/sha256_core.v",
+      "rtl/sha256_w_mem.v",
+      "rtl/sha256_k_constants.v",
+      "rtl/sha256_reg.sv"
+    ],
+    "total_rtl_lines": 4407
+  },
+  "categories": {
+    "primary": "security",
+    "secondary": ["crypto", "hash"],
+    "tags": ["sha256", "sha224", "caliptra", "root-of-trust", "hash", "winternitz", "post-quantum", "ahb", "chips-alliance"]
+  },
+  "trust": {
+    "verification_level": "silicon_proven",
+    "tapeout_count": 1,
+    "fpga_validated": false,
+    "formal_verified": true,
+    "maintained": true,
+    "last_activity": "2026-03-27"
+  },
+  "meta": {
+    "template": {"generator": "manual (gold-standard pass 2026-03-27)", "template_version": "1.0.0", "generated_at": "2026-03-27T20:52:56Z"},
+    "schema": {"version": "1.0.0"}
+  }
+}
